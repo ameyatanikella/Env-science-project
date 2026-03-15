@@ -55,12 +55,20 @@ def train_one_epoch(model, dataloader, optimizer, scheduler, criterion,
         mask = batch["mask"].to(device)
         coords = batch["coords"].to(device)
 
+        # Skip batches where no residues have valid coordinates
+        if mask.sum() == 0:
+            continue
+
         optimizer.zero_grad()
 
         with torch.autocast("cuda", enabled=scaler.is_enabled()):
             pred = model(tokens, mask)
             loss_dict = criterion(pred, coords, mask)
             loss = loss_dict["loss"]
+
+        # Skip batch if loss is NaN or Inf (don't corrupt model weights)
+        if not torch.isfinite(loss):
+            continue
 
         scaler.scale(loss).backward()
         scaler.unscale_(optimizer)
