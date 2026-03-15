@@ -102,9 +102,14 @@ def kabsch_align(pred: np.ndarray, true: np.ndarray) -> np.ndarray:
 
     # Covariance matrix
     H = pred_c.T @ true_c
+    if not np.isfinite(H).all():
+        return pred
 
     # SVD
-    U, S, Vt = np.linalg.svd(H)
+    try:
+        U, S, Vt = np.linalg.svd(H)
+    except np.linalg.LinAlgError:
+        return pred
 
     # Correct rotation for reflection
     d = np.linalg.det(Vt.T @ U.T)
@@ -131,6 +136,8 @@ def compute_tm_score(pred_coords: np.ndarray, true_coords: np.ndarray) -> float:
     """
     L = len(true_coords)
     if L == 0:
+        return 0.0
+    if not np.isfinite(pred_coords).all():
         return 0.0
 
     # Length-dependent normalization factor
