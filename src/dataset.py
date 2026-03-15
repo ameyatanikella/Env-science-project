@@ -181,6 +181,12 @@ class RNATrainDataset(Dataset):
                 coords[:n] = raw_coords[:n]
                 break
 
+        # Handle NaN coordinates: zero them out and exclude from mask
+        nan_mask = np.isnan(coords).any(axis=1)
+        coords[nan_mask] = 0.0
+        mask = np.array(mask, dtype=np.int64)
+        mask[nan_mask] = 0
+
         return {
             "tokens": torch.tensor(padded, dtype=torch.long),
             "mask": torch.tensor(mask, dtype=torch.bool),

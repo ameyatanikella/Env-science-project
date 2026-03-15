@@ -238,9 +238,12 @@ class RNAFoldModel(nn.Module):
         self._init_weights()
 
     def _init_weights(self):
-        for p in self.parameters():
-            if p.dim() > 1:
+        for name, p in self.named_parameters():
+            if p.dim() > 1 and 'token_emb' not in name:
                 nn.init.xavier_uniform_(p)
+        # Re-zero the padding embedding after init
+        with torch.no_grad():
+            self.token_emb.weight[0].zero_()
 
     def forward(self, tokens: torch.Tensor, mask: torch.Tensor) -> dict:
         """
