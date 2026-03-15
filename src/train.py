@@ -16,7 +16,7 @@ import argparse
 import numpy as np
 import torch
 import torch.nn as nn
-from torch.amp import GradScaler, autocast
+from torch.amp import GradScaler
 from torch.optim.lr_scheduler import CosineAnnealingLR
 from tqdm import tqdm
 
@@ -57,7 +57,7 @@ def train_one_epoch(model, dataloader, optimizer, scheduler, criterion,
 
         optimizer.zero_grad()
 
-        with autocast("cuda", enabled=scaler.is_enabled()):
+        with torch.autocast("cuda", enabled=scaler.is_enabled()):
             pred = model(tokens, mask)
             loss_dict = criterion(pred, coords, mask)
             loss = loss_dict["loss"]
