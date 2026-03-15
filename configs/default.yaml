@@ -1,0 +1,30 @@
+# Stanford RNA 3D Folding Part 2 - Configuration
+# Competition: https://www.kaggle.com/competitions/stanford-rna-3d-folding-2
+
+data:
+  train_dir: "data/train"
+  test_csv: "data/test_sequences.csv"
+  max_seq_len: 512
+  num_workers: 4
+
+model:
+  d_model: 256
+  n_heads: 8
+  n_layers: 8
+  d_ff: 1024
+  dropout: 0.1
+  num_predictions: 5  # 5 structure predictions per target
+
+training:
+  batch_size: 4
+  learning_rate: 3.0e-4
+  weight_decay: 1.0e-4
+  num_epochs: 100
+  warmup_steps: 1000
+  grad_clip: 1.0
+  seed: 42
+  save_dir: "checkpoints"
+
+inference:
+  checkpoint: "checkpoints/best_model.pt"
+  output_csv: "submission.csv"
