@@ -16,7 +16,7 @@ import argparse
 import numpy as np
 import torch
 import torch.nn as nn
-from torch.cuda.amp import GradScaler, autocast
+from torch.amp import GradScaler, autocast
 from torch.optim.lr_scheduler import CosineAnnealingLR
 from tqdm import tqdm
 
@@ -57,7 +57,7 @@ def train_one_epoch(model, dataloader, optimizer, scheduler, criterion,
 
         optimizer.zero_grad()
 
-        with autocast(device_type="cuda", enabled=scaler.is_enabled()):
+        with autocast("cuda", enabled=scaler.is_enabled()):
             pred = model(tokens, mask)
             loss_dict = criterion(pred, coords, mask)
             loss = loss_dict["loss"]
@@ -198,7 +198,7 @@ def main():
     scheduler = get_lr_scheduler(optimizer, cfg["training"]["warmup_steps"], total_steps)
 
     criterion = CombinedLoss()
-    scaler = GradScaler(enabled=device.type == "cuda")
+    scaler = GradScaler("cuda", enabled=device.type == "cuda")
 
     start_epoch = 0
     best_tm = 0.0
